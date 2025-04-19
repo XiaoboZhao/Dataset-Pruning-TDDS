@@ -95,7 +95,7 @@ def main():
         args.num_samples = 60000*(1-args.subset_rate)
         args.num_iter = math.ceil(args.num_samples/args.batch_size)
         train_loader, test_loader = load_mnist_sub(args)
-        net = mnistnet.__dict__[args.arch]()
+        net = mnistnet.MnistNet()
 
     else:
         raise NotImplementedError("Unsupported dataset type")

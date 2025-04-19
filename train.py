@@ -82,7 +82,7 @@ def main():
         args.num_classes = 10
         args.num_samples = 60000
         args.num_iter = args.num_samples/args.batch_size
-        net = mnistnet.__dict__[args.arch]()
+        net = mnistnet.MnistNet()
 
     print_log("=> creating model '{}'".format(args.arch), log)
     # Init model, criterion, and optimizer
