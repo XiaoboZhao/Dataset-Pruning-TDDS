@@ -30,6 +30,8 @@ def load_dataset(args):
         train_loader, test_loader = load_cifar10(args)
     elif args.dataset == 'cifar100':
         train_loader, test_loader = load_cifar100(args)
+    elif args.dataset == 'mnist':
+        train_loader, test_loader = load_mnist(args)
     else:
         raise NotImplementedError("Dataset not supported: {}".format(args.dataset))
     return train_loader, test_loader
@@ -108,6 +110,41 @@ def load_cifar100(args):
     ])
     
     test_data = dset.CIFAR100(args.data_path, train=False, transform=test_transform, download=True)
+    test_loader = torch.utils.data.DataLoader(test_data, batch_size=args.batch_size, shuffle=False,
+                                              num_workers=args.workers, pin_memory=True)
+    
+    print(f"done in {time.time() - time_start:.2f} seconds.")
+    return train_loader, test_loader
+
+def load_mnist(args):
+    """
+    Load MNIST dataset.
+
+    Returns:
+        train_loader: DataLoader for training data.
+        test_loader: DataLoader for testing data.
+    """
+    print('Loading MNIST... ', end='')
+    time_start = time.time()
+    
+    train_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
+    ])
+    
+    train_data = dset.MNIST(args.data_path, train=True, transform=train_transform, download=True)
+    target_index = [[train_data.targets[i], i] for i in range(len(train_data.targets))]
+    train_data.targets = target_index
+    
+    train_loader = torch.utils.data.DataLoader(train_data, args.batch_size, shuffle=True,
+                                               num_workers=args.workers, pin_memory=True)
+    
+    test_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.1307,), (0.3081,))
+    ])
+    
+    test_data = dset.MNIST(args.data_path, train=False, transform=test_transform, download=True)
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=args.batch_size, shuffle=False,
                                               num_workers=args.workers, pin_memory=True)
     

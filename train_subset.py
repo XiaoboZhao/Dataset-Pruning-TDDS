@@ -3,20 +3,20 @@ import argparse
 import torch
 import torch.backends.cudnn as cudnn
 from utils import AverageMeter, RecorderMeter, time_string, convert_secs2time
-from models import resnet
+from models import resnet, mnistnet
 import numpy as np
 import math
-from data_subset import load_cifar100_sub, load_cifar10_sub
+from data_subset import load_cifar100_sub, load_cifar10_sub, load_mnist_sub
 ########################################################################################################################
 #  Training Subset
 ########################################################################################################################
 
-parser = argparse.ArgumentParser(description='Trains ResNet on CIFAR',
+parser = argparse.ArgumentParser(description='Trains ResNet on CIFAR, or MnistNet on MNIST',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--data_path', type=str, default='./data', help='Path to dataset')
-parser.add_argument('--dataset', type=str, default='cifar100',choices=['cifar10', 'cifar100'],
-                    help='Choose between Cifar10 and 100.')
-parser.add_argument('--arch', type=str, default='resnet18')
+parser.add_argument('--dataset', type=str, default='cifar100',choices=['cifar10', 'cifar100', 'mnist'],
+                    help='Choose between Cifar10, 100, and mnist.')
+parser.add_argument('--arch', type=str, default='resnet18', choices=['resnet18', 'mnistnet'],)
 # Optimization options
 parser.add_argument('--epochs', type=int, default=200, help='Number of epochs to train.')
 parser.add_argument('--batch-size', type=int, default=128, help='Batch size.')
@@ -81,17 +81,26 @@ def main():
         args.num_samples = 50000*(1-args.subset_rate)
         args.num_iter = math.ceil(args.num_samples/args.batch_size)
         train_loader, test_loader = load_cifar10_sub(args, data_mask, sorted_score)
+        net = resnet.__dict__[args.arch](num_class = args.num_classes)
 
     elif args.dataset == 'cifar100':
         args.num_classes = 100
         args.num_samples = 50000*(1-args.subset_rate)
         args.num_iter = math.ceil(args.num_samples/args.batch_size)
         train_loader, test_loader = load_cifar100_sub(args, data_mask, sorted_score)
+        net = resnet.__dict__[args.arch](num_class = args.num_classes)
+
+    elif args.dataset == 'mnist':
+        args.num_classes = 10
+        args.num_samples = 60000*(1-args.subset_rate)
+        args.num_iter = math.ceil(args.num_samples/args.batch_size)
+        train_loader, test_loader = load_mnist_sub(args)
+        net = mnistnet.__dict__[args.arch]()
+
     else:
         raise NotImplementedError("Unsupported dataset type")
     print_log("=> creating model '{}'".format(args.arch), log)
     # Init model, criterion, and optimizer
-    net = resnet.__dict__[args.arch](num_class = args.num_classes)
     print_log("=> network :\n {}".format(net), log)
 
     net = torch.nn.DataParallel(net, device_ids=list(range(args.ngpu)))

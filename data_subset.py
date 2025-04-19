@@ -90,3 +90,34 @@ def load_cifar100_sub(args, data_mask, sorted_score):
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=args.batch_size, shuffle=False,
                                               num_workers=args.workers, pin_memory=True)
     return train_loader, test_loader
+
+def load_mnist_sub(args):
+    """
+    Load MNIST dataset with specified transformations and subset selection.
+    """
+    print('Loading MNIST... ', end='')
+    time_start = time.time()
+    
+    mean = [x / 255 for x in [0.1307]]
+    std = [x / 255 for x in [0.3081]]
+    
+    train_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean, std)
+    ])
+    
+    train_data = dset.MNIST(args.data_path, train=True, transform=train_transform, download=True)
+    train_loader = torch.utils.data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True,
+                                               num_workers=args.workers, pin_memory=True)
+
+    test_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean, std)
+    ])
+
+    test_data = dset.MNIST(args.data_path, train=False, transform=test_transform, download=True)
+    test_loader = torch.utils.data.DataLoader(test_data, batch_size=args.batch_size, shuffle=False,
+                                              num_workers=args.workers, pin_memory=True)
+    
+    print(f"done in {time.time() - time_start:.2f} seconds.")
+    return train_loader, test_loader
