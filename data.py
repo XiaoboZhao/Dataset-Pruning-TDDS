@@ -2,6 +2,7 @@ import time
 import torch
 import torchvision.datasets as dset
 import torchvision.transforms as transforms
+from torch.utils.data import Dataset
 
 ########################################################################################################################
 # Load Data
@@ -116,6 +117,19 @@ def load_cifar100(args):
     print(f"done in {time.time() - time_start:.2f} seconds.")
     return train_loader, test_loader
 
+class CustomMNISTDataset(Dataset):
+    def __init__(self, dataset):
+        self.dataset = dataset
+        self.target_index = [[dataset.targets[i], i] for i in range(len(dataset.targets))]
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, index):
+        img, target = self.dataset[index]  # Get the original image and target
+        target_with_index = self.target_index[index]  # Add the index to the target
+        return img, target_with_index
+
 def load_mnist(args):
     """
     Load MNIST dataset.
@@ -133,9 +147,9 @@ def load_mnist(args):
     ])
     
     train_data = dset.MNIST(args.data_path, train=True, transform=train_transform, download=True)
-    target_index = [[train_data.targets[i], i] for i in range(len(train_data.targets))]
-    train_data.targets = target_index
-    
+    # target_index = [[train_data.targets[i], i] for i in range(len(train_data.targets))]
+    # train_data.targets = target_index
+    train_data = CustomMNISTDataset(train_data)  # Wrap the dataset with the custom class
     train_loader = torch.utils.data.DataLoader(train_data, args.batch_size, shuffle=True,
                                                num_workers=args.workers, pin_memory=True)
     
