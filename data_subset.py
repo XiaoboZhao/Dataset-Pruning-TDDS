@@ -113,8 +113,8 @@ def load_mnist_sub(args, data_mask, sorted_score):
     print('Loading MNIST... ', end='')
     time_start = time.time()
     
-    mean = [x / 255 for x in [0.1307]]
-    std = [x / 255 for x in [0.3081]]
+    mean = (0.1307,)
+    std = (0.3081,)
     
     score = (sorted_score - min(sorted_score)) / (max(sorted_score) - min(sorted_score))
     
