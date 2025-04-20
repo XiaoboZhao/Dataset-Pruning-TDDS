@@ -96,15 +96,15 @@ class CustomMNISTDataset(Dataset):
     def __init__(self, dataset, data_mask, sorted_score):
         self.dataset = dataset
         score = (sorted_score - min(sorted_score)) / (max(sorted_score) - min(sorted_score))
-        self.dataset.targets = [[dataset.targets[i], score[np.where(data_mask == i)]] for i in range(len(dataset.targets))]
+        self.targets_with_score = [[dataset.targets[i], score[np.where(data_mask == i)]] for i in range(len(dataset.targets))]
 
     def __len__(self):
         return len(self.dataset)
 
     def __getitem__(self, index):
         img, target = self.dataset[index]  # Get the original image and target
-        target_with_index = self.dataset.targets[index]
-        return img, target_with_index
+        target_with_score = self.targets_with_score[index]
+        return img, target_with_score
 
 def load_mnist_sub(args, data_mask, sorted_score):
     """
