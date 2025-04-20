@@ -3,19 +3,19 @@ import argparse
 import torch
 import torch.backends.cudnn as cudnn
 from utils import AverageMeter, RecorderMeter, time_string, convert_secs2time
-from models import resnet, mnistnet
+from models import resnet, letnet5
 import numpy as np
 from data import load_data
 ########################################################################################################################
 #  Training Baseline
 ########################################################################################################################
 
-parser = argparse.ArgumentParser(description='Trains ResNet on CIFAR, or MnistNet on MNIST',
+parser = argparse.ArgumentParser(description='Trains ResNet on CIFAR, or LeNet5 on MNIST',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--data_path', type=str, default='./data', help='Path to dataset')
 parser.add_argument('--dataset', type=str, default='cifar100',choices=['cifar10', 'cifar100', 'mnist'],
                     help='Choose between Cifar10, 100, and MNIST.')
-parser.add_argument('--arch', type=str, default='resnet18', choices=['resnet18', 'mnistnet'],)
+parser.add_argument('--arch', type=str, default='resnet18', choices=['resnet18', 'lenet5'],)
 # Optimization options
 parser.add_argument('--epochs', type=int, default=200, help='Number of epochs to train.')
 parser.add_argument('--batch-size', type=int, default=100, help='Batch size.')
@@ -82,7 +82,7 @@ def main():
         args.num_classes = 10
         args.num_samples = 60000
         args.num_iter = args.num_samples/args.batch_size
-        net = mnistnet.MnistNet()
+        net = letnet5.LeNet5()
 
     print_log("=> creating model '{}'".format(args.arch), log)
     # Init model, criterion, and optimizer

@@ -3,7 +3,7 @@ import argparse
 import torch
 import torch.backends.cudnn as cudnn
 from utils import AverageMeter, RecorderMeter, time_string, convert_secs2time
-from models import resnet, mnistnet
+from models import resnet, lenet5
 import numpy as np
 import math
 from data_subset import load_cifar100_sub, load_cifar10_sub, load_mnist_sub
@@ -11,12 +11,12 @@ from data_subset import load_cifar100_sub, load_cifar10_sub, load_mnist_sub
 #  Training Subset
 ########################################################################################################################
 
-parser = argparse.ArgumentParser(description='Trains ResNet on CIFAR, or MnistNet on MNIST',
+parser = argparse.ArgumentParser(description='Trains ResNet on CIFAR, or LeNet5 on MNIST',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--data_path', type=str, default='./data', help='Path to dataset')
 parser.add_argument('--dataset', type=str, default='cifar100',choices=['cifar10', 'cifar100', 'mnist'],
                     help='Choose between Cifar10, 100, and mnist.')
-parser.add_argument('--arch', type=str, default='resnet18', choices=['resnet18', 'mnistnet'],)
+parser.add_argument('--arch', type=str, default='resnet18', choices=['resnet18', 'lenet5'],)
 # Optimization options
 parser.add_argument('--epochs', type=int, default=200, help='Number of epochs to train.')
 parser.add_argument('--batch-size', type=int, default=128, help='Batch size.')
@@ -95,7 +95,7 @@ def main():
         args.num_samples = 60000*(1-args.subset_rate)
         args.num_iter = math.ceil(args.num_samples/args.batch_size)
         train_loader, test_loader = load_mnist_sub(args, data_mask, sorted_score)
-        net = mnistnet.MnistNet()
+        net = lenet5.LeNet5()
 
     else:
         raise NotImplementedError("Unsupported dataset type")
