@@ -8,6 +8,7 @@ from PIL import Image
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.nn.parameter import Parameter
+from torch.utils.data import Dataset
 
 ########################################################################################################################
 #  Load Data
@@ -91,6 +92,20 @@ def load_cifar100_sub(args, data_mask, sorted_score):
                                               num_workers=args.workers, pin_memory=True)
     return train_loader, test_loader
 
+class CustomMNISTDataset(Dataset):
+    def __init__(self, dataset, data_mask, sorted_score):
+        self.dataset = dataset
+        score = (sorted_score - min(sorted_score)) / (max(sorted_score) - min(sorted_score))
+        self.dataset.targets = [[dataset.targets[i], score[np.where(data_mask == i)]] for i in range(len(dataset.targets))]
+
+    def __len__(self):
+        return len(self.dataset)
+
+    def __getitem__(self, index):
+        img, target = self.dataset[index]  # Get the original image and target
+        target_with_index = self.dataset.targets[index]
+        return img, target_with_index
+
 def load_mnist_sub(args, data_mask, sorted_score):
     """
     Load MNIST dataset with specified transformations and subset selection.
@@ -109,8 +124,7 @@ def load_mnist_sub(args, data_mask, sorted_score):
     ])
     
     train_data = dset.MNIST(args.data_path, train=True, transform=train_transform, download=True)
-    z = [[train_data.targets[i], score[np.where(data_mask == i)]] for i in range(len(train_data.targets))]
-    train_data.targets = z
+    train_data = CustomMNISTDataset(train_data, data_mask, sorted_score)
 
     subset_mask = data_mask[int(args.subset_rate * len(data_mask)):]
     data_set = torch.utils.data.Subset(train_data, subset_mask)
