@@ -119,6 +119,7 @@ def load_mnist_sub(args, data_mask, sorted_score):
     score = (sorted_score - min(sorted_score)) / (max(sorted_score) - min(sorted_score))
     
     train_transform = transforms.Compose([
+        transforms.Resize((32, 32)),
         transforms.ToTensor(),
         transforms.Normalize(mean, std)
     ])
@@ -133,6 +134,7 @@ def load_mnist_sub(args, data_mask, sorted_score):
                                                num_workers=args.workers, pin_memory=True)
 
     test_transform = transforms.Compose([
+        transforms.Resize((32, 32)),
         transforms.ToTensor(),
         transforms.Normalize(mean, std)
     ])
