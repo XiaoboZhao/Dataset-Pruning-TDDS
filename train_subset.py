@@ -94,7 +94,7 @@ def main():
         args.num_classes = 10
         args.num_samples = 60000*(1-args.subset_rate)
         args.num_iter = math.ceil(args.num_samples/args.batch_size)
-        train_loader, test_loader = load_mnist_sub(args)
+        train_loader, test_loader = load_mnist_sub(args, data_mask, sorted_score)
         net = mnistnet.MnistNet()
 
     else:
