@@ -91,7 +91,7 @@ def load_cifar100_sub(args, data_mask, sorted_score):
                                               num_workers=args.workers, pin_memory=True)
     return train_loader, test_loader
 
-def load_mnist_sub(args):
+def load_mnist_sub(args, data_mask, sorted_score):
     """
     Load MNIST dataset with specified transformations and subset selection.
     """
@@ -101,13 +101,21 @@ def load_mnist_sub(args):
     mean = [x / 255 for x in [0.1307]]
     std = [x / 255 for x in [0.3081]]
     
+    score = (sorted_score - min(sorted_score)) / (max(sorted_score) - min(sorted_score))
+    
     train_transform = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize(mean, std)
     ])
     
     train_data = dset.MNIST(args.data_path, train=True, transform=train_transform, download=True)
-    train_loader = torch.utils.data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True,
+    z = [[train_data.targets[i], score[np.where(data_mask == i)]] for i in range(len(train_data.targets))]
+    train_data.targets = z
+
+    subset_mask = data_mask[int(args.subset_rate * len(data_mask)):]
+    data_set = torch.utils.data.Subset(train_data, subset_mask)
+
+    train_loader = torch.utils.data.DataLoader(data_set, batch_size=args.batch_size, shuffle=True,
                                                num_workers=args.workers, pin_memory=True)
 
     test_transform = transforms.Compose([
@@ -118,6 +126,4 @@ def load_mnist_sub(args):
     test_data = dset.MNIST(args.data_path, train=False, transform=test_transform, download=True)
     test_loader = torch.utils.data.DataLoader(test_data, batch_size=args.batch_size, shuffle=False,
                                               num_workers=args.workers, pin_memory=True)
-    
-    print(f"done in {time.time() - time_start:.2f} seconds.")
     return train_loader, test_loader

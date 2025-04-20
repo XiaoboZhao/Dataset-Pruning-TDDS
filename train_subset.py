@@ -182,9 +182,6 @@ def train(train_loader, args, model, criterion, optimizer, scheduler, epoch, log
             x = input.cuda()
             s = target[1].cuda()
         
-        print(f'x: {x}')
-        print(f'y: {y}')
-        print(f's: {s}')
         input_var = torch.autograd.Variable(x)
         target_var = torch.autograd.Variable(y)
         # compute output
