@@ -142,7 +142,7 @@ def load_mnist(args):
     time_start = time.time()
     
     train_transform = transforms.Compose([
-        transforms.resize((32, 32)),
+        transforms.Resize((32, 32)),
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))
     ])
@@ -155,7 +155,7 @@ def load_mnist(args):
                                                num_workers=args.workers, pin_memory=True)
     
     test_transform = transforms.Compose([
-        transforms.resize((32, 32)),
+        transforms.Resize((32, 32)),
         transforms.ToTensor(),
         transforms.Normalize((0.1307,), (0.3081,))
     ])
