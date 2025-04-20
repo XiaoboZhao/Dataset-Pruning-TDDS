@@ -3,7 +3,7 @@ import argparse
 import torch
 import torch.backends.cudnn as cudnn
 from utils import AverageMeter, RecorderMeter, time_string, convert_secs2time
-from models import resnet, letnet5
+from models import resnet, lenet5
 import numpy as np
 from data import load_data
 ########################################################################################################################
@@ -82,7 +82,7 @@ def main():
         args.num_classes = 10
         args.num_samples = 60000
         args.num_iter = args.num_samples/args.batch_size
-        net = letnet5.LeNet5()
+        net = lenet5.LeNet5()
 
     print_log("=> creating model '{}'".format(args.arch), log)
     # Init model, criterion, and optimizer
